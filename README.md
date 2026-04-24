@@ -13,7 +13,7 @@ Invitación digital para la boda del 13 de junio de 2026 en Lorca.
 
 Se publica automáticamente en GitHub Pages desde la rama `main`.
 
-URL: https://alexpele12.github.io/invitacion/
+URL: https://bodademaviyalex.github.io/
 
 ## Personalización
 
