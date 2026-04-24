@@ -183,6 +183,30 @@
     margin: 0 1rem;
   }
 
+  .divider-mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    max-width: 240px;
+    color: var(--crimson);
+  }
+
+  .divider-mini::before,
+  .divider-mini::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green-soft), transparent);
+  }
+
+  .divider-mini span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    padding: 0 0.8rem;
+    line-height: 1;
+  }
+
   .section-title {
     text-align: center;
     font-family: 'Cormorant Garamond', serif;
@@ -745,11 +769,7 @@
 <!-- ============ RSVP ============ -->
 <section class="rsvp" id="rsvp">
   <div class="rsvp-wrap">
-    <div class="divider">
-      <span class="divider-line"></span>
-      <img src="assets/paloma-br.jpg" alt="">
-      <span class="divider-line"></span>
-    </div>
+    <div class="divider-mini" aria-hidden="true"><span>❦</span></div>
 
     <h2 class="section-title">Confirma tu asistencia</h2>
     <p class="section-subtitle">necesitamos saber que vendrás</p>
@@ -881,11 +901,7 @@
 
 <!-- ============ REGALO ============ -->
 <section class="gift">
-  <div class="divider">
-    <span class="divider-line"></span>
-    <img src="assets/paloma-tr.jpg" alt="">
-    <span class="divider-line"></span>
-  </div>
+  <div class="divider-mini" aria-hidden="true"><span>❦</span></div>
 
   <h2 class="section-title">Un detalle</h2>
   <p class="section-subtitle">si quieres tener uno con nosotros</p>
@@ -907,11 +923,7 @@
 
 <!-- ============ CONTACTO ============ -->
 <section class="contact">
-  <div class="divider">
-    <span class="divider-line"></span>
-    <img src="assets/paloma-bl.jpg" alt="">
-    <span class="divider-line"></span>
-  </div>
+  <div class="divider-mini" aria-hidden="true"><span>❦</span></div>
 
   <h2 class="section-title">¿Alguna duda?</h2>
   <p class="section-subtitle">llámanos cuando quieras</p>
