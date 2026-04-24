@@ -783,23 +783,23 @@
             <div class="form-group">
               <label>Tus alergias o intolerancias</label>
               <div class="checkbox-grid allergen-grid">
-                <label><input type="checkbox" name="alergenos_tu[]" value="Gluten / celiaquía"> Gluten / celíaco</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Lácteos / lactosa"> Lácteos / lactosa</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Huevos"> Huevos</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Pescado"> Pescado</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Crustáceos"> Crustáceos</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Moluscos"> Moluscos</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Frutos de cáscara"> Frutos secos</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Cacahuetes"> Cacahuetes</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Soja"> Soja</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Sésamo"> Sésamo</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Apio"> Apio</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Mostaza"> Mostaza</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Sulfitos"> Sulfitos</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Altramuces"> Altramuces</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Vegetariano"> Vegetariano</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Vegano"> Vegano</label>
-                <label><input type="checkbox" name="alergenos_tu[]" value="Menú infantil"> Menú infantil</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Gluten / celiaquía"> Gluten / celíaco</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Lácteos / lactosa"> Lácteos / lactosa</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Huevos"> Huevos</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Pescado"> Pescado</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Crustáceos"> Crustáceos</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Moluscos"> Moluscos</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Frutos de cáscara"> Frutos secos</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Cacahuetes"> Cacahuetes</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Soja"> Soja</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Sésamo"> Sésamo</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Apio"> Apio</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Mostaza"> Mostaza</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Sulfitos"> Sulfitos</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Altramuces"> Altramuces</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Vegetariano"> Vegetariano</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Vegano"> Vegano</label>
+                <label><input type="checkbox" data-group="alergenos_tu" value="Menú infantil"> Menú infantil</label>
               </div>
             </div>
 
@@ -942,7 +942,7 @@
     card.dataset.personId = idx;
 
     const allergens = ALERGENOS.map(a =>
-      `<label><input type="checkbox" name="acomp${idx}_alergenos[]" value="${a}"> ${ALERGENOS_LABEL[a] || a}</label>`
+      `<label><input type="checkbox" data-group="acomp${idx}_alergenos" value="${a}"> ${ALERGENOS_LABEL[a] || a}</label>`
     ).join('');
 
     card.innerHTML = `
@@ -982,6 +982,24 @@
     const n = document.querySelectorAll('#acompanantes-list .person-card').length;
     document.getElementById('numAcompanantes').value = n;
   }
+
+  // Antes de enviar: unir los checkboxes de cada grupo en un solo campo comma-separated
+  document.getElementById('rsvpForm').addEventListener('submit', () => {
+    const form = document.getElementById('rsvpForm');
+    const groups = new Map();
+    form.querySelectorAll('input[type="checkbox"][data-group]').forEach(cb => {
+      const g = cb.dataset.group;
+      if (!groups.has(g)) groups.set(g, []);
+      if (cb.checked) groups.get(g).push(cb.value);
+    });
+    groups.forEach((values, name) => {
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = name;
+      hidden.value = values.length ? values.join(', ') : '(ninguno)';
+      form.appendChild(hidden);
+    });
+  });
 
   // Copiar IBAN
   function copyIban() {
