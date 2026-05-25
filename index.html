@@ -845,6 +845,25 @@
           Hemos recibido tu confirmación.<br>¡Nos vemos el 13 de junio!
         </p>
       </div>
+
+      <div id="formError" class="form-success" style="display:none; border-color:#b85b3a;">
+        <h3 style="color:#b85b3a;">No hemos podido enviar tu confirmación</h3>
+        <p style="margin:0.75rem 0 1.25rem; color:var(--ink);">
+          El servicio que recibe las confirmaciones está caído ahora mismo.<br>
+          Por favor, <strong>inténtalo de nuevo en unos minutos</strong>, o avísanos por WhatsApp:
+        </p>
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          <a class="btn" href="https://wa.me/34649137983?text=Hola%20Alex,%20quer%C3%ADamos%20confirmar%20asistencia%20pero%20la%20web%20no%20funciona%20ahora%20mismo." target="_blank" rel="noopener" style="background:#25D366;">
+            💬 WhatsApp Alex
+          </a>
+          <a class="btn" href="https://wa.me/34620943641?text=Hola%20Mavi,%20quer%C3%ADamos%20confirmar%20asistencia%20pero%20la%20web%20no%20funciona%20ahora%20mismo." target="_blank" rel="noopener" style="background:#25D366;">
+            💬 WhatsApp Mavi
+          </a>
+        </div>
+        <button type="button" class="btn btn-outline" style="margin-top:1.25rem;" onclick="retryForm()">
+          ↻ Volver a intentarlo
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -983,23 +1002,71 @@
     document.getElementById('numAcompanantes').value = n;
   }
 
-  // Antes de enviar: unir los checkboxes de cada grupo en un solo campo comma-separated
-  document.getElementById('rsvpForm').addEventListener('submit', () => {
-    const form = document.getElementById('rsvpForm');
+  // Submit via fetch: nos permite mostrar mensaje de error si Formsubmit falla
+  const rsvpForm = document.getElementById('rsvpForm');
+  rsvpForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1. Unir checkboxes de cada grupo en un solo campo
     const groups = new Map();
-    form.querySelectorAll('input[type="checkbox"][data-group]').forEach(cb => {
+    rsvpForm.querySelectorAll('input[type="checkbox"][data-group]').forEach(cb => {
       const g = cb.dataset.group;
       if (!groups.has(g)) groups.set(g, []);
       if (cb.checked) groups.get(g).push(cb.value);
     });
+    // Eliminar inputs ocultos previos de grupos (por si se reenvía)
+    rsvpForm.querySelectorAll('input[data-merged="1"]').forEach(el => el.remove());
     groups.forEach((values, name) => {
       const hidden = document.createElement('input');
       hidden.type = 'hidden';
       hidden.name = name;
       hidden.value = values.length ? values.join(', ') : '(ninguno)';
-      form.appendChild(hidden);
+      hidden.dataset.merged = '1';
+      rsvpForm.appendChild(hidden);
     });
+
+    // 2. UI de envío
+    const submitBtn = rsvpForm.querySelector('button[type="submit"]');
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando…';
+
+    // 3. POST via fetch con timeout de 12s
+    const formData = new FormData(rsvpForm);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+    try {
+      const res = await fetch(rsvpForm.action, {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      // Éxito
+      rsvpForm.style.display = 'none';
+      document.getElementById('formSuccess').style.display = 'block';
+      document.getElementById('formSuccess').scrollIntoView({behavior:'smooth', block:'center'});
+    } catch (err) {
+      clearTimeout(timeoutId);
+      // Fallo: mostrar error con WhatsApp
+      rsvpForm.style.display = 'none';
+      document.getElementById('formError').style.display = 'block';
+      document.getElementById('formError').scrollIntoView({behavior:'smooth', block:'center'});
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+    }
   });
+
+  function retryForm() {
+    document.getElementById('formError').style.display = 'none';
+    document.getElementById('rsvpForm').style.display = 'block';
+    document.getElementById('rsvpForm').scrollIntoView({behavior:'smooth', block:'center'});
+  }
 
   // Copiar IBAN
   function copyIban() {
